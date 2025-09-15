@@ -30,7 +30,7 @@ use crate::engine::{EngineBuilder, Game, State};
 
 fn main() -> Result<()> {
   let engine = EngineBuilder::new("My Game")
-          .game(MyGame{ pos: Vector2::new(100.0, 100.0) })
+          .game(MyGame{  })
           .size(800, 600)
           .build()?;
   
