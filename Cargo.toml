@@ -1,0 +1,10 @@
+[package]
+name = "sin"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+zxcmath = {git = "https://github.com/dijikey/zxcmath.git"}
+anyhow = "1.0.99"
+pixels = "0.13.0"
+winit = "0.28.7"
