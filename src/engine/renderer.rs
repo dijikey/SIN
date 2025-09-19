@@ -51,12 +51,36 @@ impl RendererSystem {
         }
     }
     
-    pub fn draw_line(&mut self, a: Vector2, b: Vector2, color: Color) {
+    pub fn draw_circle(&mut self, position: Vector2, radius: f64, color: Color) {
         let color = color.unpack();
-        let x0 = a.x as i32;
-        let y0 = a.y as i32;
-        let x1 = b.x as i32;
-        let y1 = b.y as i32;
+        let x_start = (position.x - radius) as i32;
+        let y_start = (position.y - radius) as i32;
+        let x_end = (position.x + radius) as i32;
+        let y_end = (position.y + radius) as i32;
+
+        for y in y_start..y_end {
+            for x in x_start..x_end {
+                let dx = x as f64 - position.x;
+                let dy = y as f64 - position.y;
+                let distance = (dx * dx + dy * dy).sqrt();
+
+                if distance <= radius && x >= 0 && x < self.width as i32 && y >= 0 && y < self.height as i32 {
+                    let index = (y as u32 * self.width + x as u32) as usize * 4;
+                    let frame = self.pixels.frame_mut();
+                    if index + 3 < frame.len() {
+                        frame[index..index + 4].copy_from_slice(&color);
+                    }
+                }
+            }
+        }
+    }
+    
+    pub fn draw_line(&mut self, position_a: Vector2, position_b: Vector2, color: Color) {
+        let color = color.unpack();
+        let x0 = position_a.x as i32;
+        let y0 = position_a.y as i32;
+        let x1 = position_b.x as i32;
+        let y1 = position_b.y as i32;
 
         let dx = (x1 - x0).abs();
         let dy = (y1 - y0).abs();
@@ -68,37 +92,20 @@ impl RendererSystem {
 
         let mut x = x0;
         let mut y = y0;
-        
-        if dx >= dy {
-            for _ in 0..=dx {
-                let index = (y as u32 * self.width + x as u32) as usize * 4;
-                let frame = self.pixels.frame_mut();
-                if index + 3 < frame.len() {
-                    frame[index..index + 4].copy_from_slice(&color);
-                }
 
-                if error >= 0 {
-                    y += step_y;
-                    error -= 2 * dx;
-                }
-                error += 2 * dy;
-                x += step_x;
+        for _ in 0..= if dx >= dy { dx } else {dy} {
+            let index = (y as u32 * self.width + x as u32) as usize * 4;
+            let frame = self.pixels.frame_mut();
+            if index + 3 < frame.len() {
+                frame[index..index + 4].copy_from_slice(&color);
             }
-        } else {
-            for _ in 0..=dy {
-                let index = (y as u32 * self.width + x as u32) as usize * 4;
-                let frame = self.pixels.frame_mut();
-                if index + 3 < frame.len() {
-                    frame[index..index + 4].copy_from_slice(&color);
-                }
 
-                if error >= 0 {
-                    x += step_x;
-                    error -= 2 * dy;
-                }
-                error += 2 * dx;
+            if error >= 0 {
                 y += step_y;
+                error -= 2 * dx;
             }
+            error += 2 * dy;
+            x += step_x;
         }
     }
 

@@ -2,15 +2,16 @@
 
 <img src="resource/icon.svg" width="256" />
 
-A simple framework you can use to make 2D games, based on Rust and focused on simplicity
+# CLOUD
+### A simple framework you can use to make 2D games, based on Rust and focused on simplicity
 
-__SIN is a very raw project, so it may contain bugs and lack some functionality.__
+#### __CLOUD is a very raw project, so it may contain bugs and lack some functionality.__
 </div>
 
 ## Usage
-Add `sin-2d` as a dependency in your `Cargo.toml`
+Add `cloud` as a dependency in your `Cargo.toml`
 ```toml
-sin-2d = "*"
+cloud = "*"
 ```
 
 __If__ you have any performance issues, __try__ optimization level 2.
@@ -21,10 +22,10 @@ opt-level = 2
 ```
 
 ## Overview
-An example of using __SIN__ to create a window:
+An example of using __CLOUD__ to create a window:
 
 ```rust
-use crate::engine::{EngineBuilder, Game, State};
+use cloud::engine::{EngineBuilder, Game, State};
 
 fn main() -> Result<()> {
   let engine = EngineBuilder::new("My Game")

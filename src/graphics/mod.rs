@@ -1,6 +1,6 @@
 #[allow(dead_code)]
 mod color;
-
+#[derive(Debug, Copy, Clone)]
 pub struct Color{
     pub r: u8,
     pub g: u8,
