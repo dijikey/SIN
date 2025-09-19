@@ -58,6 +58,9 @@ impl Game for MyGame {
 ```
 
 [//]: # (Browse the [documentation] and the [examples] to learn more!)
+## Example
+* `Sandfall` Sand simulation, a VERY strange algorithms, but enough to show the possibilities. Use `cargo run --example sandfall`
+
 
 ## Implementation details:
 * [`winit`] window handling library in pure Rust.
