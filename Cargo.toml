@@ -2,6 +2,9 @@
 name = "cloud"
 version = "0.1.0"
 edition = "2024"
+authors = ["dijikey"]
+license = "MIT"
+repository = "https://github.com/dijikey/cloud"
 
 [dependencies]
 zxcmath = {git = "https://github.com/dijikey/zxcmath.git"}
@@ -9,3 +12,8 @@ anyhow = "1.0.99"
 pixels = "0.13.0"
 winit = "0.28.7"
 libloading = "0.6.3"
+image = "0.25.8"
+
+[[example]]
+name = "sandfall"
+path = "examples/sandfall.rs"

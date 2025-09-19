@@ -6,6 +6,15 @@ impl Color{
     #[inline]
     pub const fn from_rgb(r:u8, g:u8, b:u8) -> Self{ Self{ r, g, b, a: 255} }
     #[inline]
+    pub const fn from_u8(rgba: &[u8]) -> Self{
+        Self{ 
+            r: rgba[0],
+            g: rgba[1],
+            b: rgba[2],
+            a: rgba[3],
+        } 
+    }
+    #[inline]
     pub const fn unpack(self) -> [u8; 4]{ [self.r, self.g, self.b, self.a]  }
 }
 

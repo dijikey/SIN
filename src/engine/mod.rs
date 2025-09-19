@@ -1,7 +1,10 @@
+use std::path::Path;
 use crate::engine::renderer::RendererSystem;
 use crate::graphics::Color;
 use anyhow::Result;
 use libloading::Library;
+use pixels::wgpu;
+use pixels::wgpu::{Backends, BlendState};
 use winit::dpi::LogicalSize;
 use winit::event::{ElementState, Event, MouseButton, WindowEvent};
 use winit::event_loop::{ControlFlow, EventLoop};
@@ -16,7 +19,7 @@ mod builder;
 
 pub struct State{
     pub render: RendererSystem,
-    mouse: Mouse
+    pub mouse_position: Vector2,
 }
 
 pub struct Engine<G>
@@ -29,18 +32,18 @@ where G: Game,{
 
 impl<G> Engine<G>
 where G: Game + 'static{
-    fn new(title: &str, width: u32, height: u32, application: G) -> Result<Self> {
+    fn new(title: &str, width: u32, height: u32, application: G, renderer_configure: RendererConfigure) -> Result<Self> {
         let event_loop = EventLoop::new();
         let window = WindowBuilder::new()
             .with_title(title)
             .with_inner_size(LogicalSize::new(width, height))
             .build(&event_loop)?;
 
-        let render = RendererSystem::new(&window, width, height)?;
+        let render = RendererSystem::new(&window, width, height, renderer_configure)?;
 
         let state = State{
             render,
-            mouse: Mouse::new()
+            mouse_position: Vector2::new(0.0, 0.0),
         };
 
         Ok(Self {
@@ -75,7 +78,10 @@ where G: Game + 'static{
                         }
                         // # INPUT CALLBACKS
                         // CURSOR
-                        WindowEvent::CursorMoved { .. } => {}
+                        WindowEvent::CursorMoved { position, .. } => {
+                            self.state.mouse_position.x = position.x;
+                            self.state.mouse_position.y = position.y;
+                        }
                         WindowEvent::CursorEntered { .. } => {}
                         WindowEvent::CursorLeft { .. } => {}
                         // MOUSE
@@ -84,13 +90,13 @@ where G: Game + 'static{
                             match state {
                                 ElementState::Pressed => {
                                     self.application.mouse_pressed(
-                                        self.state.mouse.get_position().unwrap(),
+                                        self.state.mouse_position,
                                         button,
                                     )
                                 },
                                 ElementState::Released => {
                                     self.application.mouse_released(
-                                        self.state.mouse.get_position().unwrap(),
+                                        self.state.mouse_position,
                                         button,
                                     )
                                 }
@@ -120,8 +126,9 @@ where G: Game + 'static{
     }
 
     fn render(&mut self) -> Result<()> {
-        self.state.render.clear(Color::WHITE);
-
+        const CLEAR_COLOR: [u8; 4] = [255, 255, 255, 255];
+        self.state.render.clear_screen(&CLEAR_COLOR);
+        
         self.application.draw(&mut self.state);
 
         self.state.render.render()?;
@@ -134,27 +141,14 @@ pub struct EngineBuilder<'a, G>
     application: Option<G>,
     title: &'a str,
     width: u32,
-    height: u32
+    height: u32,
+    renderer_configure: RendererConfigure
 }
-
-struct Mouse{
-    user32: Library
-}
-impl Mouse {
-    pub(crate) fn new() -> Mouse {
-        Mouse { 
-            user32: Library::new("user32".to_string()).unwrap() 
-        }
-    }
-    pub(crate) fn get_position(&self) -> Result<Vector2, Box<dyn std::error::Error>> {
-        let mut pos = Vector2::new(0.0, 0.0);
-        unsafe {
-            let get_cursor_pos: libloading::Symbol<unsafe extern "C" fn(lp_point: &Vector2) -> bool> =
-                self.user32.get(b"GetCursorPos")?;
-            get_cursor_pos(&mut pos);
-            Ok(pos.into())
-        }
-    }
+pub struct RendererConfigure{
+    vsync: bool,
+    clear_color: wgpu::Color,
+    wgpu_backend: Backends,
+    blend_state: BlendState
 }
 
 pub trait Game{
